@@ -1,74 +1,27 @@
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
+// index.js
+import { createServer } from 'http';
+import fs from 'fs';
+import path from 'path';
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow all origins
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// This will be used for custom server setups, logging, etc. (optional in Vercel)
+const server = createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Vercel API is running\n');
+});
 
-  // Handle preflight OPTIONS request
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+// Set up server to listen on a specific port (for local development or if you're running your own server)
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}/`);
+});
 
-  // Handle GET request to retrieve the stored data or store data
-  if (req.method === 'GET') {
-    const queryData = url.parse(req.url, true).query;  // Parse the query string
-    
-    // Check if data is provided in the query string
-    if (queryData.data) {
-      const playerData = JSON.parse(queryData.data);  // Parse the incoming data
-
-      if (!playerData) {
-        return res.status(400).json({ message: 'Player data is required' });
-      }
-
-      try {
-        console.log("Received player data:", playerData);  // Log incoming data
-
-        // Define the path to the JSON file
-        const filePath = path.resolve('./playerData.json');
-
-        // Read existing data from the file (if it exists)
-        let currentData = [];
-        if (fs.existsSync(filePath)) {
-          currentData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        }
-
-        // Append new data to the existing data
-        currentData.push(playerData);
-
-        // Write the updated data back to the file
-        fs.writeFileSync(filePath, JSON.stringify(currentData, null, 2));
-
-        console.log("Data stored successfully");  // Log successful storage
-
-        // Return a success response
-        return res.status(200).json({ message: 'Data stored successfully' });
-      } catch (error) {
-        console.error('Error storing data:', error);
-        return res.status(500).json({ message: 'Failed to store player data' });
-      }
-    } else {
-      // If no data is provided in the query string, return stored data
-      try {
-        const filePath = path.resolve('./playerData.json');
-        
-        // Check if the file exists
-        if (fs.existsSync(filePath)) {
-          const data = fs.readFileSync(filePath, 'utf8');
-          return res.status(200).json(JSON.parse(data));
-        } else {
-          return res.status(404).json({ message: 'Data file not found' });
-        }
-      } catch (error) {
-        console.error('Error reading data:', error);
-        return res.status(500).json({ message: 'Failed to read player data' });
-      }
-    }
+// Example: Check if data.json exists and log its contents (just for debugging purpose)
+const dataFilePath = path.join(process.cwd(), 'data', 'data.json');
+fs.readFile(dataFilePath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading data.json:', err);
   } else {
-    // If the method is not GET, return 405 Method Not Allowed
-    return res.status(405).json({ message: 'Method Not Allowed' });
+    console.log('Contents of data.json:', data);
   }
-};
+});
