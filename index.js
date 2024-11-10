@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 // This function handles incoming requests
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   // Set CORS headers to allow all origins
-  res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -47,4 +47,4 @@ export default async function handler(req, res) {
     // If the method is not POST, return 405 Method Not Allowed
     res.status(405).json({ message: 'Method Not Allowed' });
   }
-}
+};
