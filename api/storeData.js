@@ -3,6 +3,16 @@ import fs from 'fs';
 import path from 'path';
 
 export default async function handler(req, res) {
+  // Set CORS headers to allow requests from any origin (or specify a domain)
+  res.setHeader('Access-Control-Allow-Origin', '*');  // Allow all origins or replace '*' with specific domains
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Handle OPTIONS preflight request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end(); // End the OPTIONS request
+  }
+
   if (req.method === 'POST') {
     try {
       // Get the data sent in the request body
