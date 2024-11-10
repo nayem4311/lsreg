@@ -43,8 +43,24 @@ module.exports = async (req, res) => {
       console.error('Error storing data:', error);
       res.status(500).json({ message: 'Failed to store player data' });
     }
+  } else if (req.method === 'GET') {
+    // Handle GET request to serve JSON file data
+    try {
+      const filePath = path.resolve('./playerData.json');
+
+      // Check if the file exists and return its contents
+      if (fs.existsSync(filePath)) {
+        const data = fs.readFileSync(filePath, 'utf8');
+        res.status(200).json(JSON.parse(data));
+      } else {
+        res.status(404).json({ message: 'No data found' });
+      }
+    } catch (error) {
+      console.error('Error reading file:', error);
+      res.status(500).json({ message: 'Failed to read player data' });
+    }
   } else {
-    // If the method is not POST, return 405 Method Not Allowed
+    // If the method is not POST or GET, return 405 Method Not Allowed
     res.status(405).json({ message: 'Method Not Allowed' });
   }
 };
