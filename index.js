@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// This function handles incoming requests
 module.exports = async (req, res) => {
   // Set CORS headers to allow all origins
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,6 +21,8 @@ module.exports = async (req, res) => {
     }
 
     try {
+      console.log("Received player data:", playerData);  // Log incoming data
+
       // Define the path to the JSON file
       const filePath = path.resolve('./playerData.json');
 
@@ -36,6 +37,8 @@ module.exports = async (req, res) => {
 
       // Write the updated data back to the file
       fs.writeFileSync(filePath, JSON.stringify(currentData, null, 2));
+
+      console.log("Data stored successfully");  // Log successful storage
 
       // Return a success response
       res.status(200).json({ message: 'Data stored successfully' });
