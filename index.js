@@ -15,38 +15,56 @@ module.exports = async (req, res) => {
 
   // Handle POST request to store data
   if (req.method === 'POST') {
-    // Get player data from the request body
     const { playerData } = req.body;
 
-    // Ensure that playerData is provided
     if (!playerData) {
       return res.status(400).json({ message: 'Player data is required' });
     }
 
     try {
-      // Define the path to the JSON file where the data will be stored
+      // Define the path to the JSON file
       const filePath = path.resolve('./playerData.json');
 
-      // Read existing data from the file if it exists, or initialize an empty array if the file is not found
+      // Read existing data from the file (if it exists)
       let currentData = [];
       if (fs.existsSync(filePath)) {
         currentData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       }
 
-      // Append the new player data to the existing data array
+      // Append new data to the existing data
       currentData.push(playerData);
 
-      // Write the updated data back to the JSON file
+      // Write the updated data back to the file
       fs.writeFileSync(filePath, JSON.stringify(currentData, null, 2));
 
       // Return a success response
-      res.status(200).json({ message: 'Player data stored successfully' });
+      res.status(200).json({ message: 'Data stored successfully' });
     } catch (error) {
       console.error('Error storing data:', error);
       res.status(500).json({ message: 'Failed to store player data' });
     }
-  } else {
-    // If the method is not POST, return a 405 Method Not Allowed
+  }
+
+  // Handle GET request to retrieve the stored data
+  else if (req.method === 'GET') {
+    try {
+      const filePath = path.resolve('./playerData.json');
+      
+      // Check if the file exists
+      if (fs.existsSync(filePath)) {
+        const data = fs.readFileSync(filePath, 'utf8');
+        return res.status(200).json(JSON.parse(data));
+      } else {
+        return res.status(404).json({ message: 'Data file not found' });
+      }
+    } catch (error) {
+      console.error('Error reading data:', error);
+      res.status(500).json({ message: 'Failed to read player data' });
+    }
+  }
+
+  // If the method is not POST or GET, return 405 Method Not Allowed
+  else {
     res.status(405).json({ message: 'Method Not Allowed' });
   }
 };
